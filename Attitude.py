@@ -12,7 +12,7 @@ Daedalus = Drone(
                 0, 0, 0,        # vx,vy,vz
                 0, 0, 0,        # phi,theta,psi
                 0, 0, 0],       # p,q,r    
-    
-    initInputs=[0, 0, 0, 0])    # Initial inputs u[0] = Torque, u[1:4] = Moments
-Daedalus.apply_forces()
+    initInputs=[10, 0, 0, 1])    # Initial inputs u[0] = Torque, u[1:4] = Moments
+for i in range(5):
+    Daedalus.update()
 
