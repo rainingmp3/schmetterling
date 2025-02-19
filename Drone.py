@@ -70,8 +70,8 @@ class Drone:
                            [0,0,0,0]])
     
     def update(self):
-        self.dx = self.A @ self.x +self.B @ self.u 
-        
+        self.dx = self.A @ self.x + self.B @ self.u 
+        self.y = self.C @ self.x + self.D @ self.u
         print("forces applied, thrust me!")
         pass
     
