@@ -1,14 +1,17 @@
 import numpy as np
 import copy
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import animation
 
 class Drone:
-    def __init__(self, params: dict[str, float], initStates: list, initInputs:list, gravity= 9.81):
+    def __init__(self, params: dict[str, float], initStates: list, initInputs:list, gravity= 9.81, dt = 0.05):
         
         # DRONE MODEL
         self.params = params.copy()
         self.mass = self.params['mass']      # DRONE MASS [kg]   
         self.g = gravity                     # ACCELERATION OF GRAVITY [m/s^2]
         self.l = self.params['armLength']    # DRONE ARM LENGTH [m]
+        self.dt = dt
         
         # INERTIA MATRIX [kg*m^2] 
         self.I    = np.array([[self.params['Ixx'],                 0,                  0],      
@@ -74,7 +77,12 @@ class Drone:
         self.dx = self.A @ self.x + self.B @ self.u 
         self.y  = self.C @ self.x + self.D @ self.u
         
+        # INTEGRATION SOLVER # 4now just Euler
         # 4further update: x(k) = x(k-1) + dx(k-1) * dt
+        self.x = self.x + self.dx * self.dt
         print(self.dx)
         pass
+
+    def animating(self):
+        
     
