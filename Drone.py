@@ -1,17 +1,25 @@
 import numpy as np
 import copy
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import animation
+import matplotlib.pyplot as plt
+from rotation_matrix import RotationMatrix
+from matrices import Matrices
 
 class Drone:
     def __init__(self, params: dict[str, float], initStates: list, initInputs:list, gravity= 9.81, dt = 0.05):
         
         # DRONE MODEL
         self.params = params.copy()
-        self.mass = self.params['mass']      # DRONE MASS [kg]   
-        self.g = gravity                     # ACCELERATION OF GRAVITY [m/s^2]
-        self.l = self.params['armLength']    # DRONE ARM LENGTH [m]
-        self.dt = dt
+        self._mass = self.params['mass']            # DRONE MASS [kg]   
+        self._attached_mass = self.params['mass']   # ATTACHMENT MASS [kg]   
+        self.g = gravity                            # ACCELERATION OF GRAVITY [m/s^2]
+        self.l = self.params['armLength']           # DRONE ARM LENGTH [m]
+        self.dt = dt                                # TIME STEP [s]
+        self.t = 0                                  # CURRENT TIME [s]   
+        
+        # Tables
+        self.time_table = []
+        self.x_table = []                    # STATUS-VECTOR TABLE
         
         # INERTIA MATRIX [kg*m^2] 
         self.I    = np.array([[self.params['Ixx'],                 0,                  0],      
@@ -29,60 +37,41 @@ class Drone:
         self.T = self.u[0]                                 # THRUST [N]
         self.M = self.u[1:4]                               # TORQUE [N*m]
         
-        # STATE MATRICES
-        # A(12 x 12) 
-        self.A = np.array([ [0,0,0,1,0,0,0,     0,      0,0,0,0],   
-                            [0,0,0,0,1,0,0,     0,      0,0,0,0],
-                            [0,0,0,0,0,1,0,     0,      0,0,0,0],
-                            [0,0,0,0,0,0,0,     0,-self.g,0,0,0],
-                            [0,0,0,0,0,0,0,self.g,      0,0,0,0],
-                            [0,0,0,0,0,0,0,     0,      0,0,0,0],
-                            [0,0,0,0,0,0,0,     0,      0,1,0,0],
-                            [0,0,0,0,0,0,0,     0,      0,0,1,0],
-                            [0,0,0,0,0,0,0,     0,      0,0,0,1],
-                            [0,0,0,0,0,0,0,     0,      0,0,0,0],
-                            [0,0,0,0,0,0,0,     0,      0,0,0,0],
-                            [0,0,0,0,0,0,0,     0,      0,0,0,0],
-                            ])
-        # B(12X4)
-        self.B = np.array([[          0,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [1/self.mass,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [          0,             0,             0,             0],
-                           [          0,1/self.I[0][0],             0,             0],
-                           [          0,             0,1/self.I[1][1],             0],
-                           [          0,             0,             0,1/self.I[2][2]],
-                           ])
-        # C(6X12)
-        self.C = np.array([[1,0,0,0,0,0,0,0,0,0,0,0],
-                           [0,1,0,0,0,0,0,0,0,0,0,0],
-                           [0,0,1,0,0,0,0,0,0,0,0,0],
-                           [0,0,0,0,0,0,1,0,0,0,0,0],
-                           [0,0,0,0,0,0,0,1,0,0,0,0],
-                           [0,0,0,0,0,0,0,0,1,0,0,0]])
-        # D(6X4)
-        self.D = np.array([[0,0,0,0],
-                           [0,0,0,0],
-                           [0,0,0,0],
-                           [0,0,0,0],
-                           [0,0,0,0],
-                           [0,0,0,0]])
+        # COMPOSITION LOGIC
+        self.rotation = RotationMatrix(self)
+        self.matrices = Matrices(self)
+    # DYNAMICAL VARIABLES
+    # STATE MATRICES
+    @property
+    # A(12 x 12) 
+    def A(self):
+        return self.matrices.A
     
+    @property
+    # B(12X4)
+    def B(self):
+        return self.matrices.B
+    
+    @property
+    # C(6X12)
+    def C(self):
+        return self.matrices.C
+    
+    @property
+    # D(6X4)
+    def D(self):
+        return self.matrices.D
+    
+
     def update(self):
         self.dx = self.A @ self.x + self.B @ self.u 
         self.y  = self.C @ self.x + self.D @ self.u
-        
+        self.t += self.dt 
+
+        self.time_table.append(self.t)
+        self.x_table.append(self.x)
         # INTEGRATION SOLVER # 4now just Euler
         # 4further update: x(k) = x(k-1) + dx(k-1) * dt
         self.x = self.x + self.dx * self.dt
-        print(self.dx)
-        pass
 
-    def animating(self):
         
-    
