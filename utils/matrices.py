@@ -1,6 +1,7 @@
 import numpy as np
 
 class Matrices:
+    """Stores state matrcies ABCD"""
     def __init__(self, parent):
         self.parent = parent
 

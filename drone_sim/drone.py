@@ -2,10 +2,11 @@ import numpy as np
 import copy
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
-from rotation_matrix import RotationMatrix
-from matrices import Matrices
+from drone_sim.rotation_matrix import RotationMatrix
+from utils.matrices import Matrices
 
 class Drone:
+    '''Stores and updates states and parameters.'''
     def __init__(self, params: dict[str, float], initStates: list, initInputs:list, gravity= 9.81, dt = 0.05):
         
         # DRONE MODEL
@@ -19,7 +20,7 @@ class Drone:
         
         # Tables
         self.time_table = []
-        self.x_table = []                    # STATUS-VECTOR TABLE
+        self.states_table = []                           # STATUS-VECTOR TABLE
         
         # INERTIA MATRIX [kg*m^2] 
         self.I    = np.array([[self.params['Ixx'],                 0,                  0],      
@@ -35,12 +36,15 @@ class Drone:
         # CONTROL INPUTS
         self.u = np.array(initInputs, dtype=float).copy()  # CONTROL INPUT 
         self.T = self.u[0]                                 # THRUST [N]
-        self.M = self.u[1:4]                               # TORQUE [N*m]
+        self.M = self.u[1:]                                # TORQUE [N*m]
         
         # COMPOSITION LOGIC
         self.rotation = RotationMatrix(self)
         self.matrices = Matrices(self)
     # DYNAMICAL VARIABLES
+    @property 
+    def rotation_matrix(self):
+        return self.rotation.get_rotation_matrix()
     # STATE MATRICES
     @property
     # A(12 x 12) 
@@ -62,14 +66,17 @@ class Drone:
     def D(self):
         return self.matrices.D
     
+    def log_states(self):
+        self.time_table.append(self.t)
+        self.states_table.append(self.x)
+        
 
     def update(self):
         self.dx = self.A @ self.x + self.B @ self.u 
         self.y  = self.C @ self.x + self.D @ self.u
         self.t += self.dt 
 
-        self.time_table.append(self.t)
-        self.x_table.append(self.x)
+        self.log_states()
         # INTEGRATION SOLVER # 4now just Euler
         # 4further update: x(k) = x(k-1) + dx(k-1) * dt
         self.x = self.x + self.dx * self.dt
