@@ -1,9 +1,6 @@
 import numpy as np
-import copy
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 from drone_sim.rotation_matrix import RotationMatrix
-from utils.matrices import Matrices
+from utils.state_matrices import StateMatrices
 
 class Drone:
     '''Stores and updates states and parameters.'''
@@ -17,10 +14,6 @@ class Drone:
         self.l = self.params['armLength']           # DRONE ARM LENGTH [m]
         self.dt = dt                                # TIME STEP [s]
         self.t = 0                                  # CURRENT TIME [s]   
-        
-        # Tables
-        self.time_table = []
-        self.states_table = []                           # STATUS-VECTOR TABLE
         
         # INERTIA MATRIX [kg*m^2] 
         self.I    = np.array([[self.params['Ixx'],                 0,                  0],      
@@ -39,46 +32,34 @@ class Drone:
         self.M = self.u[1:]                                # TORQUE [N*m]
         
         # COMPOSITION LOGIC
-        self.rotation = RotationMatrix(self)
-        self.matrices = Matrices(self)
+        self.rotation = RotationMatrix(self.eule)
+        self.dynamics = StateMatrices(self)
+        
+        # TABLES
+        self.time_table = [self.t]
+        self.states_table = [self.x]                           # STATUS-VECTOR TABLE
+        self.rotation_matrix_table = [self.rotation_matrix]
+    
     # DYNAMICAL VARIABLES
     @property 
     def rotation_matrix(self):
         return self.rotation.get_rotation_matrix()
-    # STATE MATRICES
-    @property
-    # A(12 x 12) 
-    def A(self):
-        return self.matrices.A
     
-    @property
-    # B(12X4)
-    def B(self):
-        return self.matrices.B
-    
-    @property
-    # C(6X12)
-    def C(self):
-        return self.matrices.C
-    
-    @property
-    # D(6X4)
-    def D(self):
-        return self.matrices.D
+    @property 
+    def transformation_matrix(self):
+        return self.rotation.get_transformation_matrix()
     
     def log_states(self):
         self.time_table.append(self.t)
         self.states_table.append(self.x)
-        
+        self.rotation_matrix_table.append(self.rotation_matrix)
 
-    def update(self):
-        self.dx = self.A @ self.x + self.B @ self.u 
-        self.y  = self.C @ self.x + self.D @ self.u
+    def update_states(self):
+        self.dx = self.dynamics.eom(self.x,self.u)
         self.t += self.dt 
-
+        self.x += self.dx * self.dt
+   
+    def update(self):
+        self.update_states()
         self.log_states()
-        # INTEGRATION SOLVER # 4now just Euler
-        # 4further update: x(k) = x(k-1) + dx(k-1) * dt
-        self.x = self.x + self.dx * self.dt
-
-        
+        print(f"{self.states_table[-1][:]} on {self.t} s")

@@ -2,11 +2,11 @@ import numpy as np
 
 class RotationMatrix:
     """Returns rotation matrix"""
-    def __init__(self, parent):
-        self.parent = parent
-        
-    def get_rotation_matrix(self, T=False):
-        phi, theta, psi = self.parent.eule
+    def __init__(self, eule):
+        self.eule = eule
+
+    def get_rotation_matrix(self):
+        phi, theta, psi = self.eule
         C_phi = np.cos(phi)
         C_theta = np.cos(theta)
         C_psi = np.cos(psi)
@@ -18,3 +18,14 @@ class RotationMatrix:
                       [     -S_theta,                    C_theta*S_phi ,                     C_theta*C_phi],        
                       ])
         return R
+   
+    def get_transformation_matrix(self):
+        phi, theta, psi = self.eule
+        C_phi = np.cos(phi)
+        C_theta = np.cos(theta)
+        S_phi = np.sin(phi)
+        T_theta = np.sin(theta)
+        T = np.array([[1, T_theta*S_phi, T_theta*C_phi],
+                      [0,         C_phi,        -S_phi],
+                      [0, S_phi/C_theta, C_phi/C_theta]])
+        return T
