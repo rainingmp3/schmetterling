@@ -2,14 +2,14 @@ import numpy as np
 
 class StateMatrices:
     """Stores state matrcies ABCD"""
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, drone):
+        self.drone = drone
         self.update_matrices()
 
     def update_matrices(self):
-        g = self.parent.g
-        mass = self.parent.params['mass']
-        I = self.parent.I
+        g = self.drone.g
+        mass = self.drone.params['mass']
+        I = self.drone.I
         self.A = np.array([ [0,0,0,1,0,0,0,     0,      0,0,0,0],   
                             [0,0,0,0,1,0,0,     0,      0,0,0,0],
                             [0,0,0,0,0,1,0,     0,      0,0,0,0],
@@ -48,8 +48,8 @@ class StateMatrices:
 
     def eom(self, states , inputs):
         dx = self.A @ states + self.B @ inputs
-        dx[3:6] = 1/self.parent.mass * (([0,0,self.parent.mass * self.parent.g]) +  self.parent.rotation_matrix * self.parent.T @ [0,0,-1])
-        dx[6:9] = self.parent.transformation_matrix @ dx[6:9] 
-        dx[9:12] = np.linalg.inv(self.parent.I) @ (self.parent.M - np.cross(self.parent.w, self.parent.I @ self.parent.w))
+        dx[3:6] = 1/self.drone.mass * (([0,0,self.drone.mass * self.drone.g]) +  self.drone.rotation_matrix * self.drone.T @ [0,0,-1])
+        dx[6:9] = self.drone.transformation_matrix @ dx[6:9] 
+        dx[9:12] = np.linalg.inv(self.drone.I) @ (self.drone.M - np.cross(self.drone.w, self.drone.I @ self.drone.w))
         return dx
 
