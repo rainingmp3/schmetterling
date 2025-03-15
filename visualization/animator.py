@@ -12,9 +12,7 @@ class Animator:
             
         self.fig = plt.figure(figsize=(8, 6))
         self.ax = self.fig.add_subplot(111, projection= '3d')
-        self.ax.set_xlim(self.parent.x[0]-5,self.parent.x[0] + 5)   
-        self.ax.set_ylim(self.parent.x[1]-5,self.parent.x[1] + 5)   
-        self.ax.set_zlim(-5,5)   
+        self.ax.invert_zaxis()
         self.ax.set_xlabel("X[m]")
         self.ax.set_ylabel("Y[m]")
         self.ax.set_zlabel("Z[m]")
@@ -24,7 +22,7 @@ class Animator:
 
         self.anime = FuncAnimation(self.fig,
                                 self.animate,frames=len(self.parent.states_table),
-                                interval = 1000,
+                                interval = self.dt * 144,
                                 blit = False,
                                 init_func = self.init_anime)
     def init_anime(self):
@@ -41,6 +39,10 @@ class Animator:
         y = self.position_table[i][1]
         z = self.position_table[i][2]
 
+        self.ax.set_xlim(x - 5, x + 5)   
+        self.ax.set_ylim(y - 5, y + 5)   
+        self.ax.set_zlim(z - 5, z + 5)   
+
         R = self.parent.rotation_matrix_table[i]
         length = self.length
 
@@ -56,8 +58,10 @@ class Animator:
 
         self.point.set_data([x], [y])
         self.point.set_3d_properties([z])
-        print(f"{i}frame y is {y}")
+        print(f"Frame {i}: {self.position_table[i]}")
+
         return self.arm1, self.arm2, self.point
     
     def show(self):
+            print(len(self.parent.states_table), len(self.position_table))
             plt.show()

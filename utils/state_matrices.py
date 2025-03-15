@@ -48,7 +48,8 @@ class StateMatrices:
 
     def eom(self, states , inputs):
         dx = self.A @ states + self.B @ inputs
-        dx[3:6] = dx[3:6] @  self.parent.rotation_matrix 
-        dx[6:9] = dx[6:9] @self.parent.transformation_matrix
+        dx[3:6] = 1/self.parent.mass * (([0,0,self.parent.mass * self.parent.g]) +  self.parent.rotation_matrix * self.parent.T @ [0,0,-1])
+        dx[6:9] = self.parent.transformation_matrix @ dx[6:9] 
+        dx[9:12] = np.linalg.inv(self.parent.I) @ (self.parent.M - np.cross(self.parent.w, self.parent.I @ self.parent.w))
         return dx
 
