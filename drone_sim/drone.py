@@ -1,5 +1,5 @@
 import numpy as np
-from drone_sim.rotation_matrix import RotationMatrix
+from drone_sim.rotation_matrix import RotationMatrices
 from utils.state_matrices import StateMatrices
 
 class Drone:
@@ -8,8 +8,8 @@ class Drone:
         
         # DRONE MODEL
         self.params = params.copy()
-        self._mass = self.params['mass']            # DRONE MASS [kg]   
-        self._attached_mass = self.params['mass']   # ATTACHMENT MASS [kg]   
+        self.mass = self.params['mass']            # DRONE MASS [kg]   
+        self.attached_mass = self.params['mass']   # ATTACHMENT MASS [kg]   
         self.g = gravity                            # ACCELERATION OF GRAVITY [m/s^2]
         self.l = self.params['armLength']           # DRONE ARM LENGTH [m]
         self.dt = dt                                # TIME STEP [s]
@@ -32,7 +32,7 @@ class Drone:
         self.M = self.u[1:]                                # TORQUE [N*m]
         
         # COMPOSITION LOGIC
-        self.rotation = RotationMatrix(self.eule)
+        self.rotation = RotationMatrices(self.eule)
         self.dynamics = StateMatrices(self)
         
         # TABLES
@@ -51,15 +51,15 @@ class Drone:
     
     def log_states(self):
         self.time_table.append(self.t)
-        self.states_table.append(self.x)
-        self.rotation_matrix_table.append(self.rotation_matrix)
+        self.states_table.append(np.copy(self.x))
+        self.rotation_matrix_table.append(np.copy(self.rotation_matrix))
 
     def update_states(self):
-        self.dx = self.dynamics.eom(self.x,self.u)
         self.t += self.dt 
+        self.dx = self.dynamics.eom(self.x,self.u)
         self.x += self.dx * self.dt
    
     def update(self):
         self.update_states()
         self.log_states()
-        print(f"{self.states_table[-1][:]} on {self.t} s")
+        print(f"{self.states_table[-1][:3]} on {self.t} s")

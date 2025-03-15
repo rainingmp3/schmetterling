@@ -1,6 +1,6 @@
 import numpy as np
 
-class RotationMatrix:
+class RotationMatrices:
     """Returns rotation matrix"""
     def __init__(self, eule):
         self.eule = eule
