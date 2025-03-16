@@ -26,6 +26,7 @@ for _ in np.arange(0,sim_time, dt):
      Daedalus.update()
      # control_input = controller.compute_control(states=(Daedalus.x), desiredStates= desired_states)
      # Daedalus.update_control(control_input)
+     print("shit")
 
 animator = Animator(Daedalus)
 animator.show()
