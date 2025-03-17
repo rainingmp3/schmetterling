@@ -9,17 +9,18 @@ class Animator:
         self.position_table = self.drone.states_table    # x,y,z
         self.length = self.drone.l
         self.dt = self.drone.dt
-            
+        
+        
         self.fig = plt.figure(figsize=(8, 6))
         self.ax = self.fig.add_subplot(111, projection= '3d')
-        self.ax.invert_zaxis()
+        # self.ax.invert_zaxis()
         self.ax.set_xlabel("X[m]")
         self.ax.set_ylabel("Y[m]")
         self.ax.set_zlabel("Z[m]")
         self.point, = self.ax.plot([], [], [], 'ro', label='Drone')
         self.arm1, = self.ax.plot([], [], [], color='cyan', linewidth=2)
         self.arm2, = self.ax.plot([], [], [], color='blue', linewidth=2)
-
+        self.plot_stats()
         self.anime = FuncAnimation(self.fig,
                                 self.animate,
                                 frames=len(self.drone.states_table),
@@ -65,7 +66,36 @@ class Animator:
         self.ax.legend([self.point],[f"Time:{t:.2f} s"])
         
         return self.arm1, self.arm2, self.point
-   
+    
+    
+    def plot_stats(self):
+         fig,axs = plt.subplots(2, 1, figsize=(9,9),sharex=True)
+         time =  np.array(self.drone.time_table)
+         states = np.array(self.position_table)
+
+         axs[0].plot(time, states[:,0], label='x', color='red')
+         axs[0].plot(time, states[:,1], label='y', color='green')
+         axs[0].plot(time, states[:,2], label='z', color='blue')
+         print(states[0,2])
+         axs[0].set_title('Position [m]')
+         axs[0].set_xlabel('Time [s]')
+         axs[0].set_ylabel('X,Y,Z')
+         axs[0].grid()
+         axs[0].set_xlim(min(time), max(time))
+
+         axs[0].legend()
+
+         axs[1].plot(time, self.drone.thrust_table, label='Thrust')
+         axs[1].set_title('Input thrust [m]')
+         axs[1].set_xlabel('Time [s]')
+         axs[1].set_ylabel('Input [N]')
+         axs[1].set_xlim(min(time), max(time))
+         axs[1].grid()
+         axs[1].legend()
+
+         plt.tight_layout()
+
+         
     def show(self):
             print(len(self.drone.states_table), len(self.position_table))
             plt.show()

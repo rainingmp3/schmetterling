@@ -23,6 +23,6 @@ class Controller():
 
         self.sum_err += err
         self.prev_err = err
-        print(err[0])
+        # print(err[0])
         return p_input + i_input + d_input
          

@@ -36,9 +36,10 @@ class Drone:
         self.dynamics = StateMatrices(self)
         
         # TABLES
-        self.time_table = [self.t]
-        self.states_table = [self.x]                           # STATUS-VECTOR TABLE
-        self.rotation_matrix_table = [self.rotation_matrix]
+        self.time_table = []
+        self.states_table = []                           # STATUS-VECTOR TABLE
+        self.rotation_matrix_table = []
+        self.thrust_table = []
     
     # DYNAMICAL VARIABLES
     @property 
@@ -50,7 +51,7 @@ class Drone:
         return self.rotation.get_transformation_matrix()
     
     def update_control(self, controlInput):
-        self.u = controlInput if np.copy(controlInput) is not None else np.copy(self.u)
+        self.u = controlInput 
         self.T = controlInput[0]
         self.M = controlInput[1:]
         # self.dynamics.update_matrices
@@ -59,13 +60,14 @@ class Drone:
         self.time_table.append(self.t)
         self.states_table.append(np.copy(self.x))
         self.rotation_matrix_table.append(np.copy(self.rotation_matrix))
+        self.thrust_table.append(np.copy(self.T))   
 
     def update_states(self):
         self.t += self.dt 
-        self.dx = self.dynamics.eom(self.x,self.u)
+        self.dx = self.dynamics.eom(self.x)
         self.x += self.dx * self.dt
    
     def update(self):
-        self.log_states()
         self.update_states()
+        self.log_states()
         # print(f"{self.states_table[-1][3]} on {self.t} s AND INPUT IS {self.u}")
