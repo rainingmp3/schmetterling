@@ -8,7 +8,7 @@ init_states = [0,  0, -3,       # x,y,z
                0,  0,  0,       # vx,vy,vz
                0,  0,  0,       # phi,theta,psi
                0,  0,  0]       # p,q,r    
-init_inputs = [git  0, 0, 0]     # Initial inputs u[0] = Torque, u[1:] = Moments
+init_inputs = [2 * 9.8,  0, 0, 0]     # Initial inputs u[0] = Torque, u[1:] = Moments
 
 desired_states = [0,  0, -1,       # x,y,z  
                   0,  0,  0,       # vx,vy,vz
@@ -17,7 +17,7 @@ desired_states = [0,  0, -1,       # x,y,z
 
 dt = 0.05
 
-sim_time = 10 
+sim_time = 5 
 
 Daedalus = Drone(params=drone_params, initInputs=init_inputs,initStates=init_states,dt=dt)
 controller = Controller(kp =1,ki=0,kd=0.5,dt=dt)
@@ -25,7 +25,7 @@ controller = Controller(kp =1,ki=0,kd=0.5,dt=dt)
 for _ in np.arange(0,sim_time, dt):
      Daedalus.update()
      control_input = controller.compute_control(states=(Daedalus.x), desiredStates= desired_states)
-     # Daedalus.update_control(control_input)
+     Daedalus.update_control(control_input)
      # print("shit")
 
 animator = Animator(Daedalus)
