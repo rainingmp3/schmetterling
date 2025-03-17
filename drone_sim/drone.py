@@ -49,9 +49,11 @@ class Drone:
     def transformation_matrix(self):
         return self.rotation.get_transformation_matrix()
     
-    # def update_control(self, controlInput):
-    #     self.u = controlInput if np.copy(controlInput) is not None else np.copy(self.u)
-        
+    def update_control(self, controlInput):
+        self.u = controlInput if np.copy(controlInput) is not None else np.copy(self.u)
+        self.T = controlInput[0]
+        self.M = controlInput[1:]
+        # self.dynamics.update_matrices
     
     def log_states(self):
         self.time_table.append(self.t)
@@ -64,6 +66,6 @@ class Drone:
         self.x += self.dx * self.dt
    
     def update(self):
-        self.update_states()
         self.log_states()
-        print(f"{self.states_table[-1][:3]} on {self.t} s")
+        self.update_states()
+        # print(f"{self.states_table[-1][3]} on {self.t} s AND INPUT IS {self.u}")

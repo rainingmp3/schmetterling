@@ -8,7 +8,7 @@ init_states = [0,  0, -3,       # x,y,z
                0,  0,  0,       # vx,vy,vz
                0,  0,  0,       # phi,theta,psi
                0,  0,  0]       # p,q,r    
-init_inputs = [1.9 * 9.8, 0, 0, 0]     # Initial inputs u[0] = Torque, u[1:] = Moments
+init_inputs = [git  0, 0, 0]     # Initial inputs u[0] = Torque, u[1:] = Moments
 
 desired_states = [0,  0, -1,       # x,y,z  
                   0,  0,  0,       # vx,vy,vz
@@ -24,9 +24,9 @@ controller = Controller(kp =1,ki=0,kd=0.5,dt=dt)
 
 for _ in np.arange(0,sim_time, dt):
      Daedalus.update()
-     # control_input = controller.compute_control(states=(Daedalus.x), desiredStates= desired_states)
+     control_input = controller.compute_control(states=(Daedalus.x), desiredStates= desired_states)
      # Daedalus.update_control(control_input)
-     print("shit")
+     # print("shit")
 
 animator = Animator(Daedalus)
 animator.show()

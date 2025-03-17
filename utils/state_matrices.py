@@ -48,8 +48,8 @@ class StateMatrices:
 
     def eom(self, states , inputs):
         dx = self.A @ states + self.B @ inputs
-        dx[3:6] = 1/self.drone.mass * (([0,0,self.drone.mass * self.drone.g]) +  self.drone.rotation_matrix * self.drone.T @ [0,0,-1])
-        dx[6:9] = self.drone.transformation_matrix @ dx[6:9] 
-        dx[9:12] = np.linalg.inv(self.drone.I) @ (self.drone.M - np.cross(self.drone.w, self.drone.I @ self.drone.w))
+        dx[3:6] += 1/self.drone.mass * np.array(([0,0,self.drone.mass * self.drone.g]) +  self.drone.rotation_matrix @  np.array([0,0,-self.drone.T]))
+        dx[6:9] += self.drone.transformation_matrix @ dx[6:9] 
+        dx[9:12] +=  (self.drone.M - np.cross(self.drone.w, self.drone.I @ self.drone.w))
         return dx
 
