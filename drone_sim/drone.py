@@ -52,7 +52,8 @@ class Drone:
     
     def update_control(self, controlInput):
         self.u = controlInput 
-        self.T = controlInput[0]
+        # UPDATING DEPENDED STATES
+        self.T = self.u[0]
         self.M = controlInput[1:]
         # self.dynamics.update_matrices
     
@@ -63,9 +64,17 @@ class Drone:
         self.thrust_table.append(np.copy(self.T))   
 
     def update_states(self):
+        dx = self.dynamics.eom1(self.x)
+        self.x += dx * self.dt
         self.t += self.dt 
-        self.dx = self.dynamics.eom(self.x)
-        self.x += self.dx * self.dt
+        # UPDATING DEPENDED STATES
+        self.r = self.x[:3]                               
+        self.dr = self.x[3:6]                             
+        self.eule = np.radians(self.x[6:9])               
+        self.w = np.radians(self.x[9:12])                 
+        
+
+
    
     def update(self):
         self.update_states()
