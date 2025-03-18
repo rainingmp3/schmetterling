@@ -4,14 +4,14 @@ from matplotlib.animation import FuncAnimation
 
 class Animator:
     """3D animation in matplotlib"""
-    def __init__(self, drone):
+    def __init__(self, drone,controller):
         self.drone = drone
-        self.position_table = self.drone.states_table    # x,y,z
+        self.controller = controller
         self.length = self.drone.l
         self.dt = self.drone.dt
         
         
-        self.fig = plt.figure(figsize=(8, 6))
+        self.fig = plt.figure(figsize=(6, 4))
         self.ax = self.fig.add_subplot(111, projection= '3d')
         # self.ax.invert_zaxis()
         self.ax.set_xlabel("X[m]")
@@ -27,7 +27,7 @@ class Animator:
                                 interval=self.drone.t/len(self.drone.states_table) * 1000,
                                 blit = False,
                                 init_func = self.init_anime,
-                                repeat=False)
+                                repeat=True)
     def init_anime(self):
         self.point.set_data([],[])
         self.arm1.set_data([],[])
@@ -38,9 +38,9 @@ class Animator:
         return self.point, self.arm1, self.arm2
 
     def animate(self, i):
-        x = self.position_table[i][0]
-        y = self.position_table[i][1]
-        z = self.position_table[i][2]
+        x = self.drone.states_table[i][0]
+        y = self.drone.states_table[i][1]
+        z = self.drone.states_table[i][2]
         R = self.drone.rotation_matrix_table[i]
         t = self.drone.time_table[i]
 
@@ -69,13 +69,14 @@ class Animator:
     
     
     def plot_stats(self):
-         fig,axs = plt.subplots(2, 1, figsize=(9,9),sharex=True)
+         fig,axs = plt.subplots(2, 1, figsize=(3,5),sharex=True)
          time =  np.array(self.drone.time_table)
-         states = np.array(self.position_table)
+         states = np.array(self.drone.states_table)
 
-         axs[0].plot(time, states[:,0], label='x', color='red')
-         axs[0].plot(time, states[:,1], label='y', color='green')
+        #  axs[0].plot(time, states[:,0], label='x', color='red')
+        #  axs[0].plot(time, states[:,1], label='y', color='green')
          axs[0].plot(time, states[:,2], label='z', color='blue')
+         axs[0].plot(time, self.controller.x_des_table, label='Desired', color='red')
          print(states[0,2])
          axs[0].set_title('Position [m]')
          axs[0].set_xlabel('Time [s]')
@@ -86,6 +87,7 @@ class Animator:
          axs[0].legend()
 
          axs[1].plot(time, self.drone.thrust_table, label='Thrust')
+         axs[1].plot(time, self.controller.err_table, label='Error_z [m]')
          axs[1].set_title('Input thrust [m]')
          axs[1].set_xlabel('Time [s]')
          axs[1].set_ylabel('Input [N]')
@@ -97,5 +99,5 @@ class Animator:
 
          
     def show(self):
-            print(len(self.drone.states_table), len(self.position_table))
+            print(len(self.drone.states_table), len(self.drone.states_table))
             plt.show()
