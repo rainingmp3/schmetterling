@@ -1,7 +1,11 @@
 import numpy as np
 
-class StateMatrices:
-    """Stores state matrcies ABCD"""
+class Dynamics:
+    """
+
+    Computes equations of motion
+    
+    """
     def __init__(self, drone):
         self.drone = drone
         self.update_matrices
@@ -32,7 +36,7 @@ class StateMatrices:
                             [          0,             0,             0,             0],
                             [          0,             0,             0,             0],
                             [          0,             0,             0,             0],
-                            [    -1/mass,             0,             0,             0],
+                            [    +1/mass,             0,             0,             0],
                             [          0,             0,             0,             0],
                             [          0,             0,             0,             0],
                             [          0,             0,             0,             0],
@@ -50,7 +54,7 @@ class StateMatrices:
         self.D =  np.eye(6,4)
         
 
-    def eom1(self, states):
+    def EOM(self, states):
         self.update_matrices
 
         self.R = np.array(self.drone.rotation_matrix)
@@ -69,7 +73,8 @@ class StateMatrices:
         dx[3:6] += external_forces/self.drone.mass
         dx[3:6] = self.R @ dx[3:6]
         dx[6:9] = self.Tr @ dx[6:9]
-        dx[9:12] += moments #!!!!!!!!!!!!!!! NOT WORKING
-        # print(f"{external_forces} and {moments}")
-        print(f"{dx[5]}")
+        # dx[9:12] += moments #!!!!!!!!!!!!!!! NOT WORKING
+        print(f"dx: {dx}, Thrust: {self.drone.u[0]}, Grav: {grav_force}")
+
+        # print(f"{dx[5]}")
         return dx
