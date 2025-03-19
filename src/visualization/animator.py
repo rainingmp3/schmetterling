@@ -3,32 +3,31 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 class Animator:
-    """3D animation in matplotlib"""
-    def __init__(self, drone,controller):
+    """
+    Animator class plays 3D animation of drone over simulation.
+    
+    """
+    def __init__(self, drone):
+        """
+        Initialize Animator class.
+        Args:
+            drone: drone object to animate 
+        """
+        # Define drone object to draw
         self.drone = drone
-        self.controller = controller
         self.length = self.drone.l
         self.dt = self.drone.dt
         
-        
-        self.fig = plt.figure(figsize=(6, 4))
-        self.ax = self.fig.add_subplot(111, projection= '3d')
-        # self.ax.invert_zaxis()
-        self.ax.set_xlabel("X[m]")
-        self.ax.set_ylabel("Y[m]")
-        self.ax.set_zlabel("Z[m]")
-        self.point, = self.ax.plot([], [], [], 'ro', label='Drone')
-        self.arm1, = self.ax.plot([], [], [], color='cyan', linewidth=2)
-        self.arm2, = self.ax.plot([], [], [], color='blue', linewidth=2)
-        self.plot_stats()
-        self.anime = FuncAnimation(self.fig,
-                                self.animate,
-                                frames=len(self.drone.states_table),
-                                interval=self.drone.t/len(self.drone.states_table) * 1000,
-                                blit = False,
-                                init_func = self.init_anime,
-                                repeat=True)
     def init_anime(self):
+        """
+        init_anime is inner function for matplotlibs FuncAnimation
+        class.
+        Initializes drone body containers where later drones 
+        position and attitude are going to be stored for drawing.
+
+        Returns:
+            Line objets for FuncAnimation.
+        """
         self.point.set_data([],[])
         self.arm1.set_data([],[])
         self.arm2.set_data([],[])
@@ -38,19 +37,28 @@ class Animator:
         return self.point, self.arm1, self.arm2
 
     def animate(self, i):
+        """
+        init_anime is inner function for matplotlibs FuncAnimation
+        class.
+        Populates created by init_anime containers with positional data
+        for drawing.
+
+        Returns:
+            Updated objects for FuncAnimation.
+        """
         x = self.drone.states_table[i][0]
         y = self.drone.states_table[i][1]
         z = self.drone.states_table[i][2]
         R = self.drone.rotation_matrix_table[i]
         t = self.drone.time_table[i]
 
+        # Lock animation on drone while it flies:
         self.ax.set_xlim(x - 5, x + 5)   
         self.ax.set_ylim(y - 5, y + 5)   
         self.ax.set_zlim(z + 5, z - 5)   
 
+        # Uses rotation matrix to rotate drones body in world frame. 
         length = self.length
-
-
         arm1_end = R @ np.array([length, 0, 0])
         arm2_end = R @ np.array([0, length, 0])
 
@@ -67,37 +75,27 @@ class Animator:
         
         return self.arm1, self.arm2, self.point
     
+    def play(self):
+        """
+        def play runs the animation of the drone.
+        Call it in main.py
+        """
+        self.fig = plt.figure(figsize=(6, 4))   
+        self.ax = self.fig.add_subplot(111, projection= '3d')
+        
+        self.ax.set_xlabel("X[m]")
+        self.ax.set_ylabel("Y[m]")
+        self.ax.set_zlabel("Z[m]")
+        self.point, = self.ax.plot([], [], [], 'ro', label='Drone')
+        self.arm1, = self.ax.plot([], [], [], color='cyan', linewidth=2)
+        self.arm2, = self.ax.plot([], [], [], color='blue', linewidth=2)
+
+        self.anime = FuncAnimation(self.fig,
+                        self.animate,
+                        frames=len(self.drone.states_table),
+                        interval=self.drone.t/len(self.drone.states_table) * 1000,
+                        blit = False,
+                        init_func = self.init_anime,
+                        repeat=True)
+        plt.show()
     
-    def plot_stats(self):
-         fig,axs = plt.subplots(2, 1, figsize=(3,5),sharex=True)
-         time =  np.array(self.drone.time_table)
-         states = np.array(self.drone.states_table)
-
-        #  axs[0].plot(time, states[:,0], label='x', color='red')
-        #  axs[0].plot(time, states[:,1], label='y', color='green')
-         axs[0].plot(time, states[:,2], label='z', color='blue')
-         axs[0].plot(time, self.controller.x_des_table, label='Desired', color='red')
-         print(states[0,2])
-         axs[0].set_title('Position [m]')
-         axs[0].set_xlabel('Time [s]')
-         axs[0].set_ylabel('X,Y,Z')
-         axs[0].grid()
-         axs[0].set_xlim(min(time), max(time))
-
-         axs[0].legend()
-
-         axs[1].plot(time, self.drone.thrust_table, label='Thrust')
-         axs[1].plot(time, self.controller.err_table, label='Error_z [m]')
-         axs[1].set_title('Input thrust [m]')
-         axs[1].set_xlabel('Time [s]')
-         axs[1].set_ylabel('Input [N]')
-         axs[1].set_xlim(min(time), max(time))
-         axs[1].grid()
-         axs[1].legend()
-
-         plt.tight_layout()
-
-         
-    def show(self):
-            print(len(self.drone.states_table), len(self.drone.states_table))
-            plt.show()

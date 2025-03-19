@@ -12,9 +12,10 @@ Author: Kotanov Ivane
 No rights reserved though :)
 """
 
-from drone.drone import Drone
-from control.controller import Controller
-from visualization.animator import Animator
+from src.drone.drone import Drone
+from src.control.controller import Controller
+from src.visualization.animator import Animator
+from src.visualization.plotter import Plotter
 import numpy as np
 
 # Drone physical characteristics:
@@ -60,6 +61,7 @@ Daedalus = Drone(params=drone_params,
                  dt=dt)
 controller = Controller(Daedalus, kp = 0.05 ,ki=0.00,kd=0.0,dt=dt)
 
+
 # Run simulation loop
 for _ in np.arange(0,sim_time, dt):
      # Compute control input based on difference between desired state and current
@@ -69,6 +71,8 @@ for _ in np.arange(0,sim_time, dt):
      Daedalus.update_control(control_input)
 
 # Visualize simulation results
-animator = Animator(Daedalus, controller)
-animator.show()
-# print(Daedalus.rotation_matrix_table)
+animator = Animator(Daedalus)
+plotter = Plotter(Daedalus, controller)
+
+# animator.play()
+plotter.plot_stats()

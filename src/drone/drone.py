@@ -1,6 +1,6 @@
 import numpy as np
-from drone.b2w import RotationMatrices
-from drone.dynamics import Dynamics
+from .b2w import RotationMatrices
+from .dynamics import Dynamics
 
 class Drone:
     '''
