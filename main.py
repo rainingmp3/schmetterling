@@ -52,14 +52,14 @@ desired_states = [
 
 # Timestep and simulation time setting
 dt = 0.05
-sim_time = 10
+sim_time = 50
 
 # Create Drone and Controller objects
 Daedalus = Drone(params=drone_params,
                  initInputs=init_inputs,
                  initStates=init_states,
                  dt=dt)
-controller = Controller(Daedalus, kp = 0.05 ,ki=0.00,kd=0.0,dt=dt)
+controller = Controller(Daedalus, kp = 1.1 ,ki=0.00,kd=0.0,dt=dt)
 
 
 # Run simulation loop

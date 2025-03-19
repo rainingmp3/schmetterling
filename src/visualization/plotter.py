@@ -21,7 +21,7 @@ class Plotter:
         Call it in main.py
 
         """
-        fig,axs = plt.subplots(2, 1, figsize=(3,5),sharex=True)
+        fig,axs = plt.subplots(2, 1, figsize=(5,5),sharex=True)
         time =  np.array(self.drone.time_table)
         states = np.array(self.drone.states_table)
         
