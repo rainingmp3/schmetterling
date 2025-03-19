@@ -56,12 +56,12 @@ class Controller():
         x_des = desiredStates[2]
         
         # Proportional, derivative and integral error calculations:
-        err  =  (x_des - x)
+        err  = (x_des - x)
         diff_err = (err - self.prev_err)/self.dt
         self.sum_err += err
         
         # Clamp integral error to prevent wind up:
-        self.sum_err = np.clip(self.sum_err, -10, 10)
+        self.sum_err = np.clip(self.sum_err, 0, 10)
         
         # Update previous error value:
         self.prev_err = err
@@ -71,7 +71,7 @@ class Controller():
         d_input = self.kd * diff_err
 
         # Wrong code which doesnt work for now:
-        control_input =  self.drone.mass * self.drone.g - ( p_input + i_input + d_input)
+        control_input =  self.drone.mass * self.drone.g + ( p_input + i_input + d_input)
         xx = np.zeros(4)
         xx[0] = control_input 
         # print(f"Error: {err}, Thrust: {control_input}, p_input: {p_input}, i_input: {i_input} ")
