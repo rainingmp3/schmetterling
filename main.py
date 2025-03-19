@@ -55,24 +55,24 @@ dt = 0.05
 sim_time = 50
 
 # Create Drone and Controller objects
-Daedalus = Drone(params=drone_params,
+schmetterling = Drone(params=drone_params,
                  initInputs=init_inputs,
                  initStates=init_states,
                  dt=dt)
-controller = Controller(Daedalus, kp = 1.1 ,ki=0.00,kd=0.0,dt=dt)
+controller = Controller(schmetterling, kp = 1.1 ,ki=0.00,kd=0.0,dt=dt)
 
 
 # Run simulation loop
 for _ in np.arange(0,sim_time, dt):
      # Compute control input based on difference between desired state and current
-     control_input = controller.compute_control(states=(Daedalus.x), 
+     control_input = controller.compute_control(states=(schmetterling.x), 
                                                 desiredStates= desired_states)
-     Daedalus.update()
-     Daedalus.update_control(control_input)
+     schmetterling.update()
+     schmetterling.update_control(control_input)
 
 # Visualize simulation results
-animator = Animator(Daedalus)
-plotter = Plotter(Daedalus, controller)
+animator = Animator(schmetterling)
+plotter = Plotter(schmetterling, controller)
 
 # animator.play()
 plotter.plot_stats()
