@@ -76,17 +76,6 @@ class Drone:
         """
         return self.rotation.get_transformation_matrix()
     
-    def update_control(self, controlInput) -> None:
-        """
-        Update control input.
-
-        Args:
-            controlInput : Control signal vector.
-        """
-        self.u = controlInput 
-        # UPDATING DEPENDED STATES
-        self.T = self.u[0]
-        self.M = controlInput[1:]
     
     def log_states(self) -> None:
         """
@@ -97,24 +86,12 @@ class Drone:
         self.rotation_matrix_table.append(np.copy(self.rotation_matrix))
         self.thrust_table.append(np.copy(self.T))   
 
-    def update_states(self) -> None:
-        """
-        Update current states based on equation of motions.
-        """
-        dx = self.dynamics.EOM(self.x)
-        self.x += dx * self.dt
-        self.t += self.dt 
-        
-        # UPDATING DEPENDED STATES
-        self.r = self.x[:3]                               
-        self.dr = self.x[3:6]                             
-        self.eule = np.radians(self.x[6:9])               
-        self.w = np.radians(self.x[9:12])                 
-   
+
     def update(self) -> None:
         """
         Update and log states.
         """
-        self.update_states()
+
+        self.dynamics.update_states()
         self.log_states()
-        # print(f"{self.states_table[-1][3]} on {self.t} s AND INPUT IS {self.u}")
+        # print(f"{self.states_table[-1][:]} t: {self.t} s u: {self.u[0]}")

@@ -43,36 +43,42 @@ init_inputs = [0, 0, 0, 0]
 # Desired states vector:
 # [x, y, z, vx, vy, vz, phi, theta, psi, p, q, r]
 desired_states = [
-                  0,  0, -5,       # Position (x,y,z)  
-                  0,  0,  0,       # Velocity (vx,vy,vz)
-                  0,  0,  0,       # Attitude (phi,theta,psi)
+                  0,  0,  0,       # Position (x,y,z)  
+                  0,  0,  5,       # Velocity (vx,vy,vz)
+                  0,  0,  -40,       # Attitude (phi,theta,psi)
                   0,  0,  0        # Angular Velocity (p,q,r)    
                   ]
                   
+                  
+controller_gains= {
+    'kP_phi':   0.2, 'kI_phi':   0.0, 'kD_phi':   0.15,
+    'kP_theta': 0.2, 'kI_theta': 0.0, 'kD_theta': 0.15,
+    'kP_psi':   0.8, 'kI_psi':   0.0, 'kD_psi':   0.3,
+    'kP_zdot': 10.0, 'kI_zdot':  0.2, 'kD_zdot':  0.0
+}
+
 
 # Timestep and simulation time setting
 dt = 0.05
-sim_time = 50
+sim_time = 10
 
 # Create Drone and Controller objects
 schmetterling = Drone(params=drone_params,
                  initInputs=init_inputs,
                  initStates=init_states,
                  dt=dt)
-controller = Controller(schmetterling, kp = 1.1 ,ki=0.00,kd=0.0,dt=dt)
+controller = Controller(schmetterling, controller_gains ,dt=dt)
 
 
 # Run simulation loop
 for _ in np.arange(0,sim_time, dt):
      # Compute control input based on difference between desired state and current
-     control_input = controller.compute_control(states=(schmetterling.x), 
-                                                desiredStates= desired_states)
      schmetterling.update()
-     schmetterling.update_control(control_input)
+     controller.compute_control(desiredStates= desired_states)
 
 # Visualize simulation results
 animator = Animator(schmetterling)
 plotter = Plotter(schmetterling, controller)
 
-# animator.play()
+animator.play()
 plotter.plot_stats()
