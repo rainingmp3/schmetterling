@@ -1,11 +1,16 @@
-avg = [
-    60,70,77,60,60,60,79,65,74,61,63,61,70,90,70,89,68,75,87,85,66,95,82,93,80,65,75,91,76,65,64,82,60,67,63,61,85,60,60,60,89,100,89,87,95,95,75,87,85,85,81,82,90,85,95,90
-      ]
+class Drone:
+    def __init__(self):
+        self.u = [0, 0, 0]
 
-sum = 0 
-for i in avg:
-    sum += i
+class Controller:
+    def __init__(self, drone):
+        self.drone = drone
+    
+    def update(self):
+        self.drone.u[1] = 5
 
-avgg = sum/len(avg)
-print(avgg)
-print(sum)
+drone = Drone()
+controller = Controller(drone)
+
+controller.update()
+print(drone.u)  # Output: [0, 5, 0]
